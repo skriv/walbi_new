@@ -2122,6 +2122,7 @@ barba.init({
       afterEnter(data) {
         let next = data.next.container;
         initGeneral(next);
+        initBlogChangeCover(next);
       },
     },
   ],
