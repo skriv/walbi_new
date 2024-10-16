@@ -1893,7 +1893,7 @@ function initAI(next) {
 function initBlogChangeCover(next){
   next = next || document;
 
-  next.querySelectorAll('.blog-link__img img, .blog-hero__img .cover-img').forEach((img) => {
+  next.querySelectorAll('.blog-link__img img, .blog-hero__img img').forEach((img) => {
     if (img.src.includes('.svg')) {
       img.src = 'https://cdn.prod.website-files.com/65f43fad61f335b69f146adb/67051f045441b8801956680d_articles-cover.png';
       img.style.setProperty('display', 'block', 'important');
