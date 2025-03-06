@@ -115,10 +115,23 @@ function resetWebflow(data) {
   let parser = new DOMParser();
   let dom = parser.parseFromString(data.next.html, "text/html");
   let webflowPageId = dom.querySelector("html").getAttribute("data-wf-page");
-  document.documentElement.setAttribute("data-wf-page", webflowPageId);
-  window.Webflow.destroy();
-  window.Webflow.ready();
-  window.Webflow.require("ix2").init();
+  
+  // Проверяем существование webflowPageId перед установкой
+  if (webflowPageId) {
+    document.documentElement.setAttribute("data-wf-page", webflowPageId);
+  }
+
+  // Проверяем существование Webflow перед использованием
+  if (window.Webflow) {
+    try {
+      window.Webflow.destroy();
+      window.Webflow.ready();
+      window.Webflow.require("ix2").init();
+      window.Webflow.redraw.up();
+    } catch (error) {
+      console.warn("Webflow initialization error:", error);
+    }
+  }
 }
 function initMenu(next) {
   next = next || document;
