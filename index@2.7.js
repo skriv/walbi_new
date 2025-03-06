@@ -1,3 +1,5 @@
+console.log("version 2.7")
+
 gsap.registerPlugin(
   ScrollTrigger,
   ScrambleTextPlugin,
