@@ -1,4 +1,4 @@
-console.log("version 2.9 - Optimization 1.0")
+console.log("version 2.9 - Translate")
 
 gsap.registerPlugin(
   ScrollTrigger,
@@ -1455,48 +1455,7 @@ function initTradeScroll(next) {
       "<"
     );
 }
-function initLanguage(next) {
-  next = next || document.querySelector(".main-w");
-  const langButton = document.querySelector("#lang-wrap");
-  const langWrap = document.querySelector(".lang-btn__wrap");
-  if (langButton) {
-    langWrap.appendChild(langButton);
-  }
 
-  if (window.innerWidth > 767) {
-    let navInner = document.querySelector(".nav-inner");
-    if (langButton) {
-      let buttonWidth = langButton.offsetWidth + 32;
-      gsap.set(navInner, { paddingRight: buttonWidth });
-    }
-  }
-
-  const checkLanguages = ["ko", "zh", "hi", "ar", "ru"];
-  const altLangs = ["ar", "ru"];
-  document.body.className = "";
-
-  function checkLanguage() {
-    const path = window.location.pathname;
-    const segments = path.split("/");
-    const langCode = segments[1];
-
-    if (checkLanguages.includes(langCode)) {
-      if (langCode === "ko") {
-        document.body.classList.add("korean");
-      } else if (langCode === "zh") {
-        document.body.classList.add("chinese");
-      } else if (langCode === "hi") {
-        document.body.classList.add("hindi");
-      } else if (altLangs.includes(langCode)) {
-        document.body.classList.add("alt-lang");
-      }
-    } else {
-      document.body.classList.add("english");
-    }
-  }
-
-  checkLanguage();
-}
 function initThemeCheck(next) {
   document.body.setAttribute("data-theme", "default");
   let pageName = next.getAttribute("data-barba-namespace");
@@ -1955,21 +1914,3 @@ barba.init({
     },
   ],
 });
-
-// function resetHome(next) {
-//   let a = next.querySelector("#hero-top");
-//   let b = next.querySelector("#hero-bottom-cta");
-//   let c = next.querySelector("#hero-logo");
-//   let d = next.querySelector("#hero-img");
-//   let e = next.querySelector("#hero-left");
-//   let f = next.querySelector("#hero-right");
-//   let g = next.querySelector(".nav-inner");
-//   let s = next.querySelector(".section.is--intro");
-//   gsap.set([a, b, c, d, e, f, g], {
-//     autoAlpha: 1,
-//     y: 0,
-//     x: 0,
-//     overwrite: true,
-//   });
-//   gsap.set(".load-w", { display: "none" });
-// }
