@@ -1,4 +1,4 @@
-console.log("version 2.8 - Redirects")
+console.log("version 2.9 - Optimization 1.0")
 
 gsap.registerPlugin(
   ScrollTrigger,
@@ -1890,7 +1890,7 @@ function initGeneral(next) {
     ranHomeLoader = true;
     ScrollTrigger.refresh();
     lenis.resize();
-    initLanguage(next);
+    // initLanguage(next);
     const badge = document.querySelector(".linguana-badge");
     const badge2 = document.querySelector(".w-webflow-badge");
     if (badge) {
@@ -2010,7 +2010,8 @@ barba.hooks.beforeEnter(() => {
   // REDIRECTS
   const redirects = [
       { from: /^\/articles\/(.+)$/, to: "/blog/$1" },
-      { from: /^\/academy-posts\/(.+)$/, to: "/academy/$1" }
+      { from: /^\/academy-posts\/(.+)$/, to: "/academy/$1" },
+      { from: /^\/coins-list$/, to: "/coins" }
   ];
 
   for (let redirect of redirects) {
