@@ -1524,6 +1524,8 @@ function initCoins(next) {
             )
           : data.list;
 
+      console.log(filteredItems);
+
       filteredItems.forEach((item) => {
         const newItem = dummyItem.cloneNode(true);
         const assetIcon = newItem.querySelector("[data-asset-icon]");
@@ -1546,11 +1548,8 @@ function initCoins(next) {
         
       });
       dummyItem.remove();
-      // console.log("Before sorting:", assetDetails.map(item => ({ symbol: item.element.querySelector("[data-asset-name]").textContent, price: item.price })));
-      
+
       assetDetails.sort((a, b) => b.price - a.price);
-      
-      // console.log("After sorting:", assetDetails.map(item => ({ symbol: item.element.querySelector("[data-asset-name]").textContent, price: item.price })));
       
       updateAssetListDisplay(assetDetails);
     })
@@ -1640,7 +1639,6 @@ function initGeneral(next) {
 }
 
 function initHome(next) {
-  // initHomeParallax(next);
   initBgCells(next);
   initAutoVideo(next);
   initAla(next);
@@ -1649,13 +1647,11 @@ function initHome(next) {
   initProcessSection(next);
   initProcessSectionText(next);
   initFeatureScroll(next);
-  // initAssetsModalParallax(next);
   initSocialSlider(next);
   initBlogToggle(next);
   initPressSection(next);
   initReviewSection(next);
   initBlogChangeCover(next);
-  // initCoins(next);
   gsap.delayedCall(1, () => {
     initScrubSection();
     initAutoplaySection();
