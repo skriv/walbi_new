@@ -1,4 +1,4 @@
-console.log("version 2.9 - Translate")
+console.log("version 3.1 - Add Money");
 
 gsap.registerPlugin(
   ScrollTrigger,
@@ -106,7 +106,7 @@ function resetWebflow(data) {
   let parser = new DOMParser();
   let dom = parser.parseFromString(data.next.html, "text/html");
   let webflowPageId = dom.querySelector("html").getAttribute("data-wf-page");
-  
+
   // Проверяем существование webflowPageId перед установкой
   if (webflowPageId) {
     document.documentElement.setAttribute("data-wf-page", webflowPageId);
@@ -1104,8 +1104,15 @@ function initBlogToggle(next) {
   const toggleVisibility = (isNews) => {
     if (isNews) {
       gsap.set(toggleleAcademy, { display: "block" });
-      toggleContent.style.height = `${setMaxHeight(next.querySelectorAll(".toggle-academy__wrap"))}px`;
-      gsap.to(newsCards, { xPercent: -50, autoAlpha: 0, ease: "main", stagger: 0.05 });
+      toggleContent.style.height = `${setMaxHeight(
+        next.querySelectorAll(".toggle-academy__wrap")
+      )}px`;
+      gsap.to(newsCards, {
+        xPercent: -50,
+        autoAlpha: 0,
+        ease: "main",
+        stagger: 0.05,
+      });
       gsap.to(academyCards, {
         xPercent: -50,
         autoAlpha: 1,
@@ -1116,7 +1123,9 @@ function initBlogToggle(next) {
       });
     } else {
       gsap.set(toggleleNews, { display: "block" });
-      toggleContent.style.height = `${setMaxHeight(next.querySelectorAll(".toggle-news__wrap"))}px`;
+      toggleContent.style.height = `${setMaxHeight(
+        next.querySelectorAll(".toggle-news__wrap")
+      )}px`;
       gsap.to(newsCards, {
         xPercent: 0,
         autoAlpha: 1,
@@ -1144,7 +1153,6 @@ function initBlogToggle(next) {
     });
   });
 }
-
 
 function initPressSection(next) {
   next = next || document;
@@ -1466,9 +1474,8 @@ function initThemeCheck(next) {
   }
 }
 
-
-
 function initCoins(next) {
+ 
   next = next || document;
   const apiUrl = "https://gw.walbi.com/instrument/summary/list/v1";
 
@@ -1476,12 +1483,15 @@ function initCoins(next) {
   const assetsList = next.querySelector(".asset-list");
   const loadingWrap = next.querySelector(".assets-loading");
 
+  const assetDetails = [];
+  const noDataItems = [];
+
   // Start by showing the loading indicator
   assetsList.style.display = "none";
   loadingWrap.style.display = "flex";
 
   // Define a map to hold references to new items by their symbols
-  const newItemsMap = {};
+  const newItemsMap = {}; // Initialization of newItemsMap
 
   const requestOptions = {
     method: "POST",
@@ -1504,107 +1514,60 @@ function initCoins(next) {
       const dummyItem = next.querySelector("[data-asset-item]");
       const parentContainer = dummyItem.parentElement;
 
-      // Filter symbols for home page
+      // ————— Фильтрация символов для страницы test
       const symbolsToFilter = ["BTC", "ETH", "SOL", "BNB", "XPR", "ADA", "XRP"];
 
-      const filteredItems = next.getAttribute("data-barba-namespace") === "home" 
-        ? data.filter(item => symbolsToFilter.includes(item.base_currency)) 
-        : data;
+      const filteredItems =
+        next.getAttribute("data-barba-namespace") === "home"
+          ? data.list.filter((item) =>
+              symbolsToFilter.includes(item.base_currency)
+            )
+          : data.list;
 
       filteredItems.forEach((item) => {
         const newItem = dummyItem.cloneNode(true);
         const assetIcon = newItem.querySelector("[data-asset-icon]");
         const img = document.createElement("img");
         img.classList.add("cover-img");
-        img.src = item.icon_url;
+        img.src = item.icon_url ? item.icon_url.replace('content.walbi-2024.webflow.io', 'content.walbi.com') : '';
         assetIcon.appendChild(img);
         const assetName = newItem.querySelector("[data-asset-name]");
         assetName.textContent = item.base_currency;
         parentContainer.appendChild(newItem);
+        // Store each newItem in the map with the symbol as the key
         newItemsMap[item.base_currency] = newItem;
+
+        // Update coin data and add to asset details
+        updateCoinData(newItem, item);
+        assetDetails.push({
+          element: newItem,
+          price: parseFloat(item.ask)
+        });
+        
       });
       dummyItem.remove();
-      return processCoins(filteredItems, newItemsMap);
+      // console.log("Before sorting:", assetDetails.map(item => ({ symbol: item.element.querySelector("[data-asset-name]").textContent, price: item.price })));
+      
+      assetDetails.sort((a, b) => b.price - a.price);
+      
+      // console.log("After sorting:", assetDetails.map(item => ({ symbol: item.element.querySelector("[data-asset-name]").textContent, price: item.price })));
+      
+      updateAssetListDisplay(assetDetails);
     })
     .catch((err) => {
       console.error("Fetch error from Walbi API:", err);
     });
+
 }
 
-function processCoins(coins, newItemsMap) {
-  const cryptoApiUrl = "https://32c2rt-3000.csb.app/api/crypto";
-  const assetDetails = [];
-  const noDataItems = [];
+function updateAssetListDisplay(sortedItems) {
 
-  fetch(cryptoApiUrl)
-    .then((res) => res.json())
-    .then((cmcData) => {
-      coins.forEach((coin) => {
-        const cryptoDetail = cmcData.data.find((c) => c.symbol === coin.base_currency);
-        const newItem = newItemsMap[coin.base_currency];
-
-        if (cryptoDetail && newItem) {
-          const assetFullNameElement = newItem.querySelector('[data-assets-fullname]');
-          if (assetFullNameElement) {
-            assetFullNameElement.textContent = cryptoDetail.name;
-          }
-
-          // Update price
-          const priceElement = newItem.querySelector('[data-asset="price"]');
-          if (priceElement) {
-            priceElement.textContent = `$${parseFloat(coin.last).toFixed(2)}`;
-          }
-
-          // Calculate 24h change
-          const change24h = ((coin.last - coin.open) / coin.open) * 100;
-          const changeElement = newItem.querySelector('[data-asset="24-hour"]');
-          if (changeElement) {
-            changeElement.textContent = `${change24h.toFixed(2)}%`;
-            const parent = changeElement.parentElement.parentElement;
-            parent.classList.add(change24h < 0 ? "down" : "up");
-          }
-
-          // Update volume
-          const volumeElement = newItem.querySelector('[data-asset="volume"]');
-          if (volumeElement) {
-            volumeElement.textContent = parseFloat(coin.volume_usd).toLocaleString();
-          }
-
-          // Update market cap from CMC data
-          const marketCapElement = newItem.querySelector('[data-asset="market-cap"]');
-          if (marketCapElement) {
-            marketCapElement.textContent = cryptoDetail.quote.USD.market_cap.toLocaleString();
-          }
-
-          assetDetails.push({
-            element: newItem,
-            marketCap: cryptoDetail.quote.USD.market_cap,
-          });
-        } else {
-          if (newItem) {
-            noDataItems.push({ element: newItem });
-          }
-        }
-      });
-
-      assetDetails.sort((a, b) => b.marketCap - a.marketCap);
-      updateAssetListDisplay(assetDetails, noDataItems.length);
-    })
-    .catch((err) => console.error("Fetch error from Crypto API:", err));
-}
-function updateAssetListDisplay(sortedItems, noDataCount) {
   const parentContainer = document.querySelector(".asset-list");
-  parentContainer.innerHTML = "";
 
   let header = document.querySelector(".asset-header");
   if (header) {
     header.style.display = "flex";
     parentContainer.appendChild(header);
-  }
-
-  let remainingText = document.querySelector("[data-assets-remaining]");
-  if (remainingText) {
-    remainingText.innerHTML = noDataCount;
   }
 
   sortedItems.forEach((item) => {
@@ -1614,7 +1577,6 @@ function updateAssetListDisplay(sortedItems, noDataCount) {
       console.log("Invalid item found: ", item);
     }
   });
-
 
   gsap.set(".asset-item", { autoAlpha: 0 });
   document.querySelector(".asset-list").style.display = "flex";
@@ -1632,6 +1594,30 @@ function updateAssetListDisplay(sortedItems, noDataCount) {
 
   lenis.resize();
   ScrollTrigger.refresh();
+}
+function updateCoinData(newItem, cryptoDetail) {
+  const formatChange = (change) => {
+    return parseFloat(change).toFixed(2);
+  };
+
+  const lastPrice = parseFloat(cryptoDetail.last);
+  const openPrice = parseFloat(cryptoDetail.open);
+  // const priceDifference = lastPrice - openPrice;
+  const priceDifferencePercentage = ((lastPrice - openPrice) / openPrice) * 100;
+
+  // Last price
+  const lastpriceElement = newItem.querySelector('[data-asset="last-price"]');
+  if (lastpriceElement) {
+    lastpriceElement.textContent = `$${formatChange(lastPrice)}`;
+  }
+
+  // Growth percent
+  const percentElement = newItem.querySelector('[data-asset="growth"]');
+  if (percentElement) {
+    percentElement.textContent = `${formatChange(priceDifferencePercentage)}%`;
+    const parent = percentElement.parentElement.parentElement;
+    parent.classList.add(priceDifferencePercentage < 0 ? "down" : "up");
+  }
 }
 
 //
@@ -1759,18 +1745,18 @@ barba.hooks.beforeEnter(() => {
 
   // REDIRECTS
   const redirects = [
-      { from: /^\/articles\/(.+)$/, to: "/blog/$1" },
-      { from: /^\/academy-posts\/(.+)$/, to: "/academy/$1" },
-      { from: /^\/coins-list$/, to: "/coins" }
+    { from: /^\/articles\/(.+)$/, to: "/blog/$1" },
+    { from: /^\/academy-posts\/(.+)$/, to: "/academy/$1" },
+    { from: /^\/coins-list$/, to: "/coins" },
   ];
 
   for (let redirect of redirects) {
-      const match = currentPath.match(redirect.from);
-      if (match) {
-          const newPath = redirect.to.replace("$1", match[1]); 
-          window.location.replace(newPath); 
-          break; 
-      }
+    const match = currentPath.match(redirect.from);
+    if (match) {
+      const newPath = redirect.to.replace("$1", match[1]);
+      window.location.replace(newPath);
+      break;
+    }
   }
 });
 
@@ -1820,6 +1806,7 @@ barba.init({
         let next = data.next.container;
         initGeneral(next);
         initHome(next);
+        initCoins(next);
       },
     },
     {
@@ -1890,6 +1877,14 @@ barba.init({
         let next = data.next.container;
         initGeneral(next);
         initCoinsFAQ(next);
+      },
+    },
+    {
+      namespace: "test",
+      afterEnter(data) {
+        let next = data.next.container;
+        initGeneral(next);
+        initCoins(next);
       },
     },
   ],
