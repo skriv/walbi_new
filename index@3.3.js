@@ -1,4 +1,5 @@
-console.log("version 3.1 - Add Money");
+console.log("DEV - version 3.3 - Add Money");
+// console.log("PROD - version 3.3 - Add Money");
 
 gsap.registerPlugin(
   ScrollTrigger,
@@ -75,7 +76,7 @@ CustomEase.create("load", "0.53, 0, 0, 1");
 //
 // GENERAL
 function runSplit(next) {
-  next = next || document;
+
   lineTargets = next.querySelectorAll("[data-split-lines]");
   var split = new SplitText(lineTargets, {
     linesClass: "line",
@@ -242,9 +243,12 @@ function initNavHover() {
     });
   });
 }
-function initNavScroll() {
+function initNavScroll(next) {
+  next = next || document;
   let nav = document.querySelector(".nav-w");
-  let lang = document.querySelector(".lang-w");
+  // let lang = document.querySelector(".lang-w");
+  let logoNavigation = next.querySelector("[data-nav-logo]");
+  logoNavigation.style.opacity = 0;
   if (!nav) return;
   let lastScrollTop = 0;
   const buffer = 25;
@@ -253,19 +257,20 @@ function initNavScroll() {
     "scroll",
     (e) => {
       let scrollTop = window.scrollY || document.documentElement.scrollTop;
+      let viewportHalfHeight = window.innerHeight * 0.5;
 
       if (Math.abs(scrollTop - lastScrollTop) > buffer) {
-        if (scrollTop > lastScrollTop) {
-          gsap.to(lang, {
-            autoAlpha: 0,
-            y: "-75%",
+        if (scrollTop > viewportHalfHeight) {
+          gsap.to(logoNavigation, {
+            autoAlpha: 1,
+            y: "0%",
             ease: "power3",
             overwrite: "auto",
           });
         } else {
-          gsap.to(lang, {
-            autoAlpha: 1,
-            y: "0%",
+          gsap.to(logoNavigation, {
+            autoAlpha: 0,
+            y: "20%",
             ease: "power3",
             overwrite: "auto",
           });
@@ -641,6 +646,7 @@ function initProcessSectionText(next) {
   const triggers = next.querySelectorAll(".process-trigger");
   const texts = next.querySelectorAll(".process-text");
   const progressNumber = next.querySelector("[data-progress-nr]");
+
   let resizeTimeout;
 
   window.addEventListener("resize", function () {
@@ -1683,7 +1689,6 @@ function initGeneral(next) {
   runSplit(next);
   initNavHover();
   initMenu(next);
-  initNavScroll();
   initScrambles(next);
   initAllStaggerTitles(next);
   initGridRevealParallax(next);
@@ -1710,6 +1715,7 @@ function initHome(next) {
   initPressSection(next);
   initReviewSection(next);
   initBlogChangeCover(next);
+  initNavScroll(next);
   gsap.delayedCall(1, () => {
     initScrubSection();
     initAutoplaySection();
