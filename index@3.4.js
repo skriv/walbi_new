@@ -1,5 +1,5 @@
-console.log("DEV - version 3.3 - Add Localization");
-// console.log("PROD - version 3.3 - Add Money");
+
+console.log("PROD - version 3.4");
 
 gsap.registerPlugin(
   ScrollTrigger,
@@ -8,6 +8,27 @@ gsap.registerPlugin(
   EasePack,
   CustomEase
 );
+
+// Add transition styles to head
+const transitionStyles = document.createElement('style');
+transitionStyles.innerHTML = `  
+  body.is-transitioning {
+    overflow: hidden !important;
+  }
+  
+  .barba-container {
+    will-change: opacity;
+  }
+  
+  .barba-entered {
+    opacity: 1;
+  }
+  
+  body.barba-loaded {
+    opacity: 1;
+  }
+`;
+document.head.appendChild(transitionStyles);
 
 const appHeight = () => {
   const doc = document.documentElement;
@@ -139,6 +160,9 @@ function initMenu(next) {
   let menuLinks = next.querySelectorAll(".menu-link");
 
   menuLinks.forEach((link) => {
+    // Add data-barba-prevent attribute to each link
+    link.setAttribute("data-barba-prevent", "");
+    
     link.addEventListener("click", () => {
       gsap.delayedCall(0.5, () => {
         menuButton.click();
@@ -1557,6 +1581,7 @@ async function initCoins(next, symbolsToFilter = []) {
     if (assetCode) {
       assetCode.textContent = item.base_currency;
       assetCode.href = `/coins/${item.title.toLowerCase().replace(/\s+/g, '-')}`;
+      assetCode.setAttribute('data-barba-prevent', '');
       // assetCode.target = "_blank";
     }
 
@@ -1692,6 +1717,14 @@ function initLocalization(next) {
   
   // Initial state - all hidden
   localizationList.forEach(element => element.style.display = 'none');
+  
+  // Add data-barba-prevent to localization links
+  localizationList.forEach(list => {
+    const links = list.querySelectorAll('a');
+    links.forEach(link => {
+      link.setAttribute('data-barba-prevent', '');
+    });
+  });
   
   // Toggle function to reuse logic
   const toggleLocalizationList = (show) => {
@@ -1881,44 +1914,155 @@ barba.hooks.beforeEnter(() => {
 });
 
 barba.hooks.leave(() => {
-  lenis.destroy();
+  // Don't destroy lenis here, will handle in transitions
 });
 
 barba.hooks.enter((data) => {
-  let next = data.next.container;
+  // Just mark the container as entered
+  data.next.container.classList.add('barba-entered');
+});
+
+barba.hooks.after(() => {
+  // Remove transitioning class if it wasn't removed properly
+  if (document.body.classList.contains('is-transitioning')) {
+    document.body.classList.remove('is-transitioning');
+  }
 });
 
 barba.hooks.afterEnter((data) => {
-  let next = data.next.container;
-  let triggers = ScrollTrigger.getAll();
-  triggers.forEach((trigger) => {
-    trigger.kill();
-  });
+  try {
+    let next = data.next.container;
+    
+    // Kill all ScrollTrigger instances
+    let triggers = ScrollTrigger.getAll();
+    triggers.forEach((trigger) => {
+      trigger.kill();
+    });
 
-  next.classList.remove("fixed");
+    next.classList.remove("fixed");
 
-  resetWebflow(data);
+    // Reset Webflow
+    resetWebflow(data);
 
-  lenis = new Lenis({
-    duration: 1.1,
-    wrapper: document.body,
-    easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -13 * t)),
-  });
-  lenis.scrollTo(".page-w", {
-    duration: 0.5,
-    force: true,
-    lock: true,
-  });
+    // Make sure the scroll position is at the top
+    window.scrollTo(0, 0);
+    
+    // Проверить загрузку изображений на странице
+    const imagesToLoad = Array.from(next.querySelectorAll('img')).filter(img => !img.complete);
+    if (imagesToLoad.length > 0) {
+      Promise.all(
+        imagesToLoad.map(img => {
+          return new Promise(resolve => {
+            img.onload = img.onerror = resolve;
+          });
+        })
+      ).then(() => {
+        // После загрузки всех изображений обновить Lenis
+        if (lenis) lenis.resize();
+      });
+    }
+  } catch (error) {
+    console.error("Error in afterEnter hook:", error);
+    // Fallback to reload the page if there's an error
+    window.location.reload();
+  }
 });
 
 barba.init({
   //debug: true,
   preventRunning: true,
+  timeout: 8000, // Set a timeout for navigation requests
   prevent: function ({ el }) {
     if (el.hasAttribute("data-barba-prevent")) {
       return true;
     }
   },
+  // Add prefetching to improve performance
+  prefetch: true,
+  // Handle errors with transitions
+  transitions: [{
+    name: 'default-transition',
+    // Простой переход без анимаций
+    
+    // Перед уходом с текущей страницы
+    beforeLeave() {
+      document.body.classList.add('is-transitioning');
+    },
+    
+    // Уход с текущей страницы - моментальное исчезновение
+    leave() {
+      // Ничего не делаем для мгновенного исчезновения
+      return new Promise(resolve => resolve());
+    },
+    
+    // Перед показом новой страницы
+    beforeEnter(data) {
+      // Очищаем анимации GSAP
+      gsap.killTweensOf("*");
+      
+      // Удаляем старый Lenis и создаем новый
+      if (lenis) {
+        lenis.destroy();
+      }
+      
+      // Инициализируем новый экземпляр Lenis
+      lenis = new Lenis({
+        duration: 1.1,
+        wrapper: document.body,
+        easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -13 * t)),
+      });
+      
+      // Подготавливаем новую страницу к отображению
+      gsap.set(data.next.container, { 
+        opacity: 1,
+        clearProps: 'position,top,left,width,zIndex'
+      });
+    },
+    
+    // Показ новой страницы - моментальное появление
+    enter() {
+      document.body.classList.remove('is-transitioning');
+      
+      // Прокручиваем страницу в начало
+      window.scrollTo(0, 0);
+      
+      // Обновляем Lenis
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
+        lenis.resize();
+      }
+      
+      // Возвращаем пустой промис для мгновенного отображения
+      return new Promise(resolve => {
+        // Необходимо для корректной инициализации страницы
+        setTimeout(resolve, 10);
+      });
+    },
+    
+    // Первоначальная загрузка
+    once(data) {
+      document.body.classList.add('barba-loaded');
+      
+      // Сразу показываем страницу без анимации
+      gsap.set(data.next.container, { opacity: 1 });
+      
+      // Инициализируем Lenis при первой загрузке
+      if (!lenis) {
+        lenis = new Lenis({
+          duration: 1.1,
+          wrapper: document.body,
+          easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -13 * t)),
+        });
+        
+        // Подключаем Lenis к GSAP ticker
+        gsap.ticker.add((time) => {
+          lenis.raf(time * 1000);
+        });
+      }
+      
+      return new Promise(resolve => resolve());
+    }
+  }],
   views: [
     {
       namespace: "home",
