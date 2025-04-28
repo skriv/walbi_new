@@ -1,3 +1,4 @@
+
 console.log("PROD - version 3.4");
 
 gsap.registerPlugin(
@@ -307,16 +308,7 @@ function initNavScroll(next) {
 function initScrambles(container) {
   if (!container) container = document;
   let buttons = container.querySelectorAll("[scramble-link]");
-  
   buttons.forEach((button) => {
-      const textLength = button.textContent.length;
-
-      if (!button.classList.contains("is--large")) {
-        button.style.minWidth = `${textLength}ch`;
-        button.style.width = `calc(${textLength}ch + 3rem)`;
-      }
-      
-    
     let buttonTl = gsap.timeline({
       paused: true,
     });
