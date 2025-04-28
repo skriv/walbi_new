@@ -1,5 +1,4 @@
-console.log("DEV - version 3.3 - Add Localization");
-// console.log("PROD - version 3.3 - Add Money");
+console.log("version 3.1 - Add Money");
 
 gsap.registerPlugin(
   ScrollTrigger,
@@ -76,7 +75,7 @@ CustomEase.create("load", "0.53, 0, 0, 1");
 //
 // GENERAL
 function runSplit(next) {
-
+  next = next || document;
   lineTargets = next.querySelectorAll("[data-split-lines]");
   var split = new SplitText(lineTargets, {
     linesClass: "line",
@@ -243,12 +242,9 @@ function initNavHover() {
     });
   });
 }
-function initNavScroll(next) {
-  next = next || document;
+function initNavScroll() {
   let nav = document.querySelector(".nav-w");
-  // let lang = document.querySelector(".lang-w");
-  let logoNavigation = next.querySelector("[data-nav-logo]");
-  logoNavigation.style.opacity = 0;
+  let lang = document.querySelector(".lang-w");
   if (!nav) return;
   let lastScrollTop = 0;
   const buffer = 25;
@@ -257,20 +253,19 @@ function initNavScroll(next) {
     "scroll",
     (e) => {
       let scrollTop = window.scrollY || document.documentElement.scrollTop;
-      let viewportHalfHeight = window.innerHeight * 0.5;
 
       if (Math.abs(scrollTop - lastScrollTop) > buffer) {
-        if (scrollTop > viewportHalfHeight) {
-          gsap.to(logoNavigation, {
-            autoAlpha: 1,
-            y: "0%",
+        if (scrollTop > lastScrollTop) {
+          gsap.to(lang, {
+            autoAlpha: 0,
+            y: "-75%",
             ease: "power3",
             overwrite: "auto",
           });
         } else {
-          gsap.to(logoNavigation, {
-            autoAlpha: 0,
-            y: "20%",
+          gsap.to(lang, {
+            autoAlpha: 1,
+            y: "0%",
             ease: "power3",
             overwrite: "auto",
           });
@@ -646,7 +641,6 @@ function initProcessSectionText(next) {
   const triggers = next.querySelectorAll(".process-trigger");
   const texts = next.querySelectorAll(".process-text");
   const progressNumber = next.querySelector("[data-progress-nr]");
-
   let resizeTimeout;
 
   window.addEventListener("resize", function () {
@@ -1683,50 +1677,18 @@ function updateCoinData(newItem, cryptoDetail) {
   }
 }
 
-
-function initLocalization(next) {
-  next = next || document;  
-
-  const localization = next.querySelector('[data-locals]');
-  const localizationList = next.querySelectorAll('[data-locals-list]');
-  
-  // Initial state - all hidden
-  localizationList.forEach(element => element.style.display = 'none');
-  
-  // Toggle function to reuse logic
-  const toggleLocalizationList = (show) => {
-    const displayValue = show ? 'flex' : 'none';
-    localizationList.forEach(element => element.style.display = displayValue);
-  };
-
-  // Click on localization button
-  localization.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isVisible = localizationList[0].style.display === 'flex';
-    toggleLocalizationList(!isVisible);
-  });
-  
-  // Document click handler - only add once
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('[data-locals-list]') && !e.target.closest('[data-locals]')) {
-      toggleLocalizationList(false);
-    }
-  });
-}
-
-
 //
 
 function initGeneral(next) {
   runSplit(next);
   initNavHover();
   initMenu(next);
+  initNavScroll();
   initScrambles(next);
   initAllStaggerTitles(next);
   initGridRevealParallax(next);
   initAnimationTrackers(next);
   initThemeCheck(next);
-  initLocalization(next);
   gsap.delayedCall(1, () => {
     ranHomeLoader = true;
     ScrollTrigger.refresh();
@@ -1748,7 +1710,6 @@ function initHome(next) {
   initPressSection(next);
   initReviewSection(next);
   initBlogChangeCover(next);
-  initNavScroll(next);
   gsap.delayedCall(1, () => {
     initScrubSection();
     initAutoplaySection();
