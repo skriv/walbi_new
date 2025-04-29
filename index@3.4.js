@@ -156,12 +156,57 @@ function initMenu(next) {
   let menuLinkTexts = menuWrap.querySelectorAll(".menu-link__text");
   let menuButtons = menuWrap.querySelectorAll(".menu-button");
 
-  let menuLinks = next.querySelectorAll(".menu-link");
+  let menuLinks = next.querySelectorAll("[data-menu-link]");
+  let languageClose = next.querySelector("[data-locale-close]");
+  let languageOpen = next.querySelector("[data-locale-open]");
+  const languageMobileElement = document.getElementById("language-mobile");
+
+
+  // show Check oposite active language
+const localeMobileLinks = next.querySelectorAll('.locale-mobile-link');
+localeMobileLinks.forEach(link => {
+  if (!link.classList.contains('w--current')) {
+    const localeCheckElement = link.querySelector('[data-locale-check]');
+    if (localeCheckElement) {
+      localeCheckElement.style.display = 'none';
+    }
+  }
+});
+
+  // Set initial position
+  if (languageMobileElement) {
+    gsap.set(languageMobileElement, { y: "100%", display: "none" });
+  }
+
+  languageOpen.addEventListener("click", () => {
+    if (languageMobileElement) {
+      gsap.to(languageMobileElement, {
+        y: "0%",
+        opacity: 1,
+        display: "flex",
+        duration: 0.5,
+        ease: "power3.out"
+      });
+    }
+  });
+
+  languageClose.addEventListener("click", () => {
+    if (languageMobileElement) {
+      gsap.to(languageMobileElement, {
+        y: "100%",
+        opacity: 0,
+        duration: 0.5,
+        ease: "power3.in",
+        onComplete: () => {
+          languageMobileElement.style.display = "none";
+        }
+      });
+    }
+  });
 
   menuLinks.forEach((link) => {
     // Add data-barba-prevent attribute to each link
     link.setAttribute("data-barba-prevent", "");
-    
     link.addEventListener("click", () => {
       gsap.delayedCall(0.5, () => {
         menuButton.click();
@@ -1722,16 +1767,16 @@ function initLocalization(next) {
 
   const localization = next.querySelector('[data-locals]');
   const localizationList = next.querySelectorAll('[data-locals-list]');
-  const localeMobileLinks = next.querySelectorAll('.locale-mobile-link');
+  // const localeMobileLinks = next.querySelectorAll('.locale-mobile-link');
   
-  localeMobileLinks.forEach(link => {
-    if (!link.classList.contains('w--current')) {
-      const localeCheckElement = link.querySelector('[data-locale-check]');
-      if (localeCheckElement) {
-        localeCheckElement.style.display = 'none';
-      }
-    }
-  });
+  // localeMobileLinks.forEach(link => {
+  //   if (!link.classList.contains('w--current')) {
+  //     const localeCheckElement = link.querySelector('[data-locale-check]');
+  //     if (localeCheckElement) {
+  //       localeCheckElement.style.display = 'none';
+  //     }
+  //   }
+  // });
   
   // Initial state - all hidden
   localizationList.forEach(element => element.style.display = 'none');
