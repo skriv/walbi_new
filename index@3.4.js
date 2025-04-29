@@ -1722,6 +1722,16 @@ function initLocalization(next) {
 
   const localization = next.querySelector('[data-locals]');
   const localizationList = next.querySelectorAll('[data-locals-list]');
+  const localeMobileLinks = next.querySelectorAll('.locale-mobile-link');
+  
+  localeMobileLinks.forEach(link => {
+    if (!link.classList.contains('w--current')) {
+      const localeCheckElement = link.querySelector('[data-locale-check]');
+      if (localeCheckElement) {
+        localeCheckElement.style.display = 'none';
+      }
+    }
+  });
   
   // Initial state - all hidden
   localizationList.forEach(element => element.style.display = 'none');
