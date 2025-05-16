@@ -233,7 +233,6 @@
   }
   .trading-track .char{opacity:0.2}
   
-  .up .caret{transform:rotate(180deg)}
   
   .press-slide__cta::after{
   	content:'';
@@ -265,8 +264,18 @@
   
   .flex-h.gap--small.color--red { color: var(--color--red); }
 	.flex-h.gap--small.color--green { color: var(--color--walbi); }
+
+
+  .up .caret{transform:rotate(180deg)}
+  
+
 	.up { color: var(--color--walbi); }
-	.down { color: var(--color--red); } 
+	.down { color: var(--color--red); }
+  
+  [data-coins-price].up { color: var(--color--black); background-color: var(--color--walbi); }
+  [data-coins-price].down { color: var(--color--white); background-color: var(--color--red); }
+
+
   
   
   
