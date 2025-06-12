@@ -272,6 +272,7 @@
 	.up { color: var(--color--walbi); }
 	.down { color: var(--color--red); }
   
+  [data-coins-price] { padding-left: 0.2em; padding-right: 0.2em; }
   [data-coins-price].up { color: var(--color--black); background-color: var(--color--walbi); }
   [data-coins-price].down { color: var(--color--white); background-color: var(--color--red); }
 
