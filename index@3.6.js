@@ -1634,9 +1634,6 @@ async function initCoins(next, symbolsToFilter = []) {
     const assetCode = newItem.querySelector("[data-asset-code]");
     if (assetCode) {
       assetCode.textContent = item.base_currency;
-      assetCode.href = `/coins/${item.title.toLowerCase().replace(/\s+/g, '-')}`;
-      assetCode.setAttribute('data-barba-prevent', '');
-      // assetCode.target = "_blank";
     }
 
     // Set the same URL for newItem
