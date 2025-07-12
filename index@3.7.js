@@ -1923,10 +1923,18 @@ async function initCoinsDetails(next) {
   next = next || document;
 
   const coinDetails = next.querySelector('[data-coins-ticker]');
+  console.log(coinDetails);
   if (coinDetails) {
     // Make price elements transparent while loading
     const coinPriceElements = next.querySelectorAll('[data-coins-price]');
     const loaders = next.querySelectorAll('[walbi-loader]');
+    const detailsVolume = next.querySelectorAll('[data-coins-volume]'); 
+    const detailsOpen = next.querySelectorAll('[data-coins-open]');
+    const detailsHigh = next.querySelectorAll('[data-coins-hight]');
+    const detailsLow = next.querySelectorAll('[data-coins-low]');
+    const detailsLast = next.querySelectorAll('[data-coins-last]');
+
+    
 
 
     // Show loaders initially
@@ -1942,8 +1950,30 @@ async function initCoinsDetails(next) {
 
     const lastPrice = parseFloat(coinPriceDetails[0].last);
     const openPrice = parseFloat(coinPriceDetails[0].open);
-  
+    const highPrice = parseFloat(coinPriceDetails[0].high);
+    const lowPrice = parseFloat(coinPriceDetails[0].low);
+    const volumePrice = parseFloat(coinPriceDetails[0].volume_usd);
+
     const priceDifferencePercentage = ((lastPrice - openPrice) / openPrice) * 100;
+
+    detailsOpen.forEach(element => {
+      element.textContent = '$'+openPrice;
+    });
+    detailsHigh.forEach(element => {
+      element.textContent = '$'+highPrice;
+    });
+    detailsLow.forEach(element => {
+      element.textContent = '$'+lowPrice;
+    });
+    detailsVolume.forEach(element => {
+      element.textContent = '$'+volumePrice;
+    });
+    detailsLast.forEach(element => {
+      element.textContent = '$'+lastPrice;
+    });
+
+    
+
 
     // Highlight Price
     coinPriceElements.forEach(element => {
