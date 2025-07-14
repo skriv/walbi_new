@@ -1636,12 +1636,25 @@ async function initCoins(next, symbolsToFilter = []) {
       assetCode.textContent = item.base_currency;
     }
 
-    // Extract the language prefix from the current URL
-    const pathSegments = window.location.pathname.split('/');
-    const languagePrefix = pathSegments[1];
+    // Get the domain
+    const domain = window.location.origin;
 
-    // Set the same URL for newItem with language prefix
-    newItem.href = `/${languagePrefix}/coins/${item.title.toLowerCase().replace(/\s+/g, '-')}`;
+    // Extract the path segments from the current URL
+    const pathSegments = window.location.pathname.split('/');
+
+    // Determine if the first segment is a language prefix or "coins"
+    let newPath;
+    if (pathSegments[1] === 'coins') {
+        // If the first segment is "coins", use the structure without a language prefix
+        newPath = `/coins/${item.title.toLowerCase().replace(/\s+/g, '-')}`;
+    } else {
+        // Otherwise, assume the first segment is a language prefix
+        const languagePrefix = pathSegments[1];
+        newPath = `/${languagePrefix}/coins/${item.title.toLowerCase().replace(/\s+/g, '-')}`;
+    }
+
+    // Set the same URL for newItem with the determined path
+    newItem.href = `${domain}${newPath}`;
     newItem.setAttribute('data-barba-prevent', '');
 
     const assetFullName = newItem.querySelector("[data-assets-fullname]");
