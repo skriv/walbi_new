@@ -2373,5 +2373,14 @@ barba.init({
         initAccordionCSS(next);
       },
     },
+    {
+      namespace: "trading-strategies",
+      afterEnter(data) {
+        let next = data.next.container;
+        initGeneral(next);
+        initAlgotrading(next);
+        initAccordionCSS(next);
+      },
+    },
   ],
 });
