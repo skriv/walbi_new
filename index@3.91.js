@@ -2382,5 +2382,14 @@ barba.init({
         initAccordionCSS(next);
       },
     },
+    {
+      namespace: "ai-trading-bot",
+      afterEnter(data) {
+        let next = data.next.container;
+        initGeneral(next);
+        initAlgotrading(next);
+        initAccordionCSS(next);
+      },
+    },
   ],
 });
